@@ -79,7 +79,6 @@ explain why it is interesting or important. Your introduction should address the
 In this project, we aim to solve the problem of translating handwritten mathematical expressions into a digital format, specifically \LaTeX{} code. As students, we often work through math problems on paper, and turning that work into a digital document means manually retyping every expression, which is slow and error-prone. We believe an automated solution could save considerable time and make mathematical work easier to share, edit, and submit. Because of the nature of handwriting where it varies, this project would be good for deep learning as it requires a model that can learn to recognize symbols across different writing styles, and it can also learn the syntax of \LaTeX{} itself. We therefore investigate whether, using existing training datasets and/or pretrained models, deep learning can convert handwritten mathematical expressions into accurate \LaTeX{} code. 
 % ==================================================
 \section{Related Work and Background}
-
 Briefly discuss relevant prior work, existing methods, and
 approaches related to your problem. Identify the most relevant paper(s).
 
@@ -87,6 +86,24 @@ approaches related to your problem. Identify the most relevant paper(s).
     \item How your proposed project relates to existing work.
     \item Which methods or ideas you intend to build upon.
 \end{itemize}
+
+
+The modern approaches for handwriting recognition and latex translation problems use encoder-decoder methods. 
+Below is a list of papers we found that used encoder-decoder methods for related problems:
+\begin{itemize}
+    \item Im2Markup (2017): CNN plus attention RNN, image straight to LaTeX (printed formulas).
+    \item WAP (2017): the same idea applied to handwriting. This is a classic baseline for handwriting recognition.
+    \item BTTR (2021): switched to a Transformer decoder that reads left-to-right and right-to-left.
+    \item CoMER (2022): added coverage attention, which stops the model from skipping or repeating symbols. \textbf{This is the most relevant paper, and will likely be the method we will build off of.}
+    \item SAN / CAN (2022): add syntax-tree guidance or symbol counting.
+    \item Big OCR models (TrOCR, Nougat, multimodal LLMs): powerful, but large and mostly trained on printed text.
+\end{itemize}
+
+CoMER (Coverage information in a Transformer decoder for Mathematical Expression Recognition) is paper by Wenqi Zhao and Liangcai Gao. It takes an image of handwritten math 
+and outputs a LaTeX string, one token at a time.
+
+This is the exact same problem that we will try to be solving. However, instead of a CNN encoder, we'll be experimenting with a hybrid CNN + Transformer encoder.
+ We'll also be using a Transformer decoder. Evaluation would be done on the CROHME benchmarks so results compare directly with published work.
 
 % ==================================================
 \section{Datasets}
@@ -103,6 +120,30 @@ and testing. Specify:
 \end{itemize}
 
 Explain why the selected datasets are appropriate for the problem.
+
+\textbf{Datasets:} Below are the main datasets we will be using. They match the task exactly: handwritten math paired with LaTeX. All the licensing is free for research. The dataset should be a few GB once rendered, and computation shouldn't take more than a day according to a quick google search.
+ 
+\textbf{CROHME (handwriting competition benchmark)}
+\begin{itemize}
+    \item Handwritten strokes (InkML) plus LaTeX labels, rendered to images.
+    \item About 9k training expressions. Test sets: 2014 (~1k), 2016 (~1.1k), 2019 (~1.2k).
+    \item Why: it’s the standard benchmark, so I can compare directly with CoMER and the other papers. It is also readily prepared for our specific task.
+\end{itemize}
+
+\textbf{MathWriting (Google, 2024)}
+\begin{itemize}
+    \item Handwritten strokes plus LaTeX.
+    \item About 230k real plus about 400k synthetic expressions, with official train/val/test splits.
+    \item License: CC BY-NC-SA 4.0, so non-commercial research use is fine.
+    \item Why: about 25× bigger than CROHME, so less overfitting and room to test how much more data helps.
+\end{itemize}
+
+\textbf{Split}: We train on the MathWriting training split and use its validation split for model selection.
+We evaluate on the MathWriting test split and on the CROHME 2014, 2016 and 2019 test sets for comparison with prior work. The MathWriting training set is plenty enough data to train
+on, and the CROHME test sets are small enough to evaluate quickly while ensuring that we don't leak any test data into training.
+
+\textbf{Preprocessing and Augmentation:}
+There will be some preprocessing required for the dataset. We will need to render strokes to grayscale images and resize to a fixed height, clean up the LaTeX labels so equivalent formulas are written the same way, split the LaTeX into tokens like \verb|\frac, \{, x, ^|, and likely drop extremely long samples to fit GPU memory. For augmentations, we will add small rotations, scaling, stretching, distortion. 
 
 % ==================================================
 \section{Available Hardware and Computational Resources}
