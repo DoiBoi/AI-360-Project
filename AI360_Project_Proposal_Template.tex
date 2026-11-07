@@ -13,6 +13,7 @@
 \usepackage{tabularx}
 \usepackage{amsmath}
 \usepackage{enumitem}
+\usepackage{xcolor}
 
 % --------------------------------------------------
 % Formatting
@@ -34,7 +35,8 @@
 % --------------------------------------------------
 \newcommand{\coursename}{AI 360: Deep Learning}
 \newcommand{\groupname}{Group Name [EDIT]}
-\newcommand{\projecttitle}{Project Title [EDIT]} 
+\newcommand{\projecttitle}{Project Title [EDIT]}
+\newcommand{\blue}[1]{\textcolor{blue}{#1}}
 
 % --------------------------------------------------
 % Document
@@ -64,9 +66,9 @@ This template is for guidance, and you can decide the exact details to include, 
     \textbf{Team Member} &
     \textbf{Student ID} \\
     \midrule
-    Jordan Lieu & 33077652\\
-    Alex Yang & 52656155 \\
-    Eddie Yang & 24738544\\
+    \blue{Jordan Lieu} & \blue{33077652} \\
+    \blue{Alex Yang} & \blue{52656155} \\
+    \blue{Eddie Yang} & \blue{24738544} \\
     \bottomrule
 \end{tabularx}
 \end{center}
@@ -76,7 +78,9 @@ This template is for guidance, and you can decide the exact details to include, 
 
 Describe the problem that your project aims to address in 1 paragraph and
 explain why it is interesting or important. Your introduction should address the following questions: \\\\
-In this project, we aim to solve the problem of translating handwritten mathematical expressions into a digital format, specifically \LaTeX{} code. As students, we often work through math problems on paper, and turning that work into a digital document means manually retyping every expression, which is slow and error-prone. We believe an automated solution could save considerable time and make mathematical work easier to share, edit, and submit. Because of the nature of handwriting where it varies, this project would be good for deep learning as it requires a model that can learn to recognize symbols across different writing styles, and it can also learn the syntax of \LaTeX{} itself. We therefore investigate whether, using existing training datasets and/or pretrained models, deep learning can convert handwritten mathematical expressions into accurate \LaTeX{} code. 
+\blue{
+In this project, we aim to solve the problem of translating handwritten mathematical expressions into a digital format, specifically \LaTeX{} code. As students, we often work through math problems on paper, and turning that work into a digital document means manually retyping every expression, which is slow and error-prone. We believe an automated solution could save considerable time and make mathematical work easier to share, edit, and submit. Because of the nature of handwriting where it varies, this project would be good for deep learning as it requires a model that can learn to recognize symbols across different writing styles, and it can also learn the syntax of \LaTeX{} itself. We therefore investigate whether, using existing training datasets and/or pretrained models, deep learning can convert handwritten mathematical expressions into accurate \LaTeX{} code.
+}
 % ==================================================
 \section{Related Work and Background}
 Briefly discuss relevant prior work, existing methods, and
@@ -87,8 +91,8 @@ approaches related to your problem. Identify the most relevant paper(s).
     \item Which methods or ideas you intend to build upon.
 \end{itemize}
 
-
-The modern approaches for handwriting recognition and latex translation problems use encoder-decoder methods. 
+\blue{
+The modern approaches for handwriting recognition and latex translation problems use encoder-decoder methods.
 Below is a list of papers we found that used encoder-decoder methods for related problems:
 \begin{itemize}
     \item Im2Markup (2017): CNN plus attention RNN, image straight to LaTeX (printed formulas).
@@ -98,12 +102,17 @@ Below is a list of papers we found that used encoder-decoder methods for related
     \item SAN / CAN (2022): add syntax-tree guidance or symbol counting.
     \item Big OCR models (TrOCR, Nougat, multimodal LLMs): powerful, but large and mostly trained on printed text.
 \end{itemize}
+}
 
-CoMER (Coverage information in a Transformer decoder for Mathematical Expression Recognition) is paper by Wenqi Zhao and Liangcai Gao. It takes an image of handwritten math 
+\blue{
+CoMER (Coverage information in a Transformer decoder for Mathematical Expression Recognition) is paper by Wenqi Zhao and Liangcai Gao. It takes an image of handwritten math
 and outputs a LaTeX string, one token at a time.
+}
 
+\blue{
 This is the exact same problem that we will try to be solving. However, instead of a CNN encoder, we'll be experimenting with a hybrid CNN + Transformer encoder.
  We'll also be using a Transformer decoder. Evaluation would be done on the CROHME benchmarks so results compare directly with published work.
+}
 
 % ==================================================
 \section{Datasets}
@@ -121,15 +130,20 @@ and testing. Specify:
 
 Explain why the selected datasets are appropriate for the problem.
 
+\blue{
 \textbf{Datasets:} Below are the main datasets we will be using. They match the task exactly: handwritten math paired with LaTeX. All the licensing is free for research. The dataset should be a few GB once rendered, and computation shouldn't take more than a day according to a quick google search.
- 
-\textbf{CROHME (handwriting competition benchmark)}
+}
+
+\blue{
+  \textbf{CROHME (handwriting competition benchmark) (https://mouchere-h.univ-nantes.io/home-page/projects/CROHME/)}
 \begin{itemize}
     \item Handwritten strokes (InkML) plus LaTeX labels, rendered to images.
-    \item About 9k training expressions. Test sets: 2014 (~1k), 2016 (~1.1k), 2019 (~1.2k).
-    \item Why: it’s the standard benchmark, so I can compare directly with CoMER and the other papers. It is also readily prepared for our specific task.
+    \item About 9k training expressions. Test sets: 2014 (\text{\textasciitilde1k}), 2016 (\text{\textasciitilde1.1k}), 2019 (\text{\textasciitilde1.2k}).
+    \item Why: it’s the standard benchmark, so we can compare directly with CoMER and the other papers. It is also readily prepared for our specific task.
 \end{itemize}
+}
 
+\blue{
 \textbf{MathWriting (Google, 2024)}
 \begin{itemize}
     \item Handwritten strokes plus LaTeX.
@@ -137,21 +151,27 @@ Explain why the selected datasets are appropriate for the problem.
     \item License: CC BY-NC-SA 4.0, so non-commercial research use is fine.
     \item Why: about 25× bigger than CROHME, so less overfitting and room to test how much more data helps.
 \end{itemize}
+}
 
+\blue{
 \textbf{Split}: We train on the MathWriting training split and use its validation split for model selection.
 We evaluate on the MathWriting test split and on the CROHME 2014, 2016 and 2019 test sets for comparison with prior work. The MathWriting training set is plenty enough data to train
 on, and the CROHME test sets are small enough to evaluate quickly while ensuring that we don't leak any test data into training.
+}
 
+\blue{
 \textbf{Preprocessing and Augmentation:}
-There will be some preprocessing required for the dataset. We will need to render strokes to grayscale images and resize to a fixed height, clean up the LaTeX labels so equivalent formulas are written the same way, split the LaTeX into tokens like \verb|\frac, \{, x, ^|, and likely drop extremely long samples to fit GPU memory. For augmentations, we will add small rotations, scaling, stretching, distortion. 
+There will be some preprocessing required for the dataset. We will need to render strokes to grayscale images and resize to a fixed height, clean up the LaTeX labels so equivalent formulas are written the same way, split the LaTeX into tokens like \texttt{\detokenize{\frac, \{, x, ^}}, and likely drop extremely long samples to fit GPU memory. For augmentations, we will add small rotations, scaling, stretching, distortion.
+}
 
 % ==================================================
 \section{Available Hardware and Computational Resources}
 
 Describe the computational resources available to your group. Include relevant details such as GPUs or other accelerators available (model and memory, if known) beyond colab if any.
-\begin{itemize}
-    \item A PC with an NVIDIA 5070 RTX is available to use
-\end{itemize}
+
+\blue{
+    NVIDIA 5070 RTX on local PC
+}
 
 % ==================================================
 \section{Proposed Model and Methodology}
@@ -159,7 +179,7 @@ Describe the computational resources available to your group. Include relevant d
 Describe your initial technical approach (this need not be a full definition of the model) and explain how you intend
 to develop and evaluate your deep learning solution.
 
-{\bf Model and Starting Point.} 
+{\bf Model and Starting Point.}
 Specify the model or architecture (e.g., CNN, RNN, GNN, etc.) you intend to use and justify your choice. Clarify the starting point of your project:
 \begin{itemize}[noitemsep]
     \item Will you use an existing pre-trained model?
