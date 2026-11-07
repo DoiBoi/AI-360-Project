@@ -36,7 +36,7 @@
 \newcommand{\coursename}{AI 360: Deep Learning}
 \newcommand{\groupname}{JAE}
 \newcommand{\projecttitle}{LaTeXWriting}
-\newcommand{\blue}[1]{\textcolor{blue}{#1}}
+\newcommand{\blue}[1]{\textcolor{cyan!60!black}{#1}}
 
 % --------------------------------------------------
 % Document
@@ -107,7 +107,7 @@ Below is a list of papers we found that used encoder-decoder methods for related
     \begin{itemize}
         \item paper: https://arxiv.org/abs/2105.02412
     \end{itemize}
-    \item CoMER (2022): added coverage attention, which stops the model from skipping or repeating symbols. 
+    \item CoMER (2022): added coverage attention, which stops the model from skipping or repeating symbols.
     \textbf{This is the most relevant paper, and will likely be the idea we will build off of.}
     \begin{itemize}
         \item paper: https://arxiv.org/abs/2207.04410
@@ -170,11 +170,11 @@ Licensing for both is free for research as well. The dataset should be a few GB 
 }
 
 \blue{
-\textbf{Split}: We will train on the MathWriting training split and use its validation split for model selection. 
-We will evaluate on the MathWriting test split and on the CROHME 2014, 2016 and 2019 test sets, which are the standard 
-benchmarks used in prior work. MathWriting provides substantially more training data than CROHME, which reduces 
-overfitting, while evaluating on CROHME allows direct comparison with published results. Because the CROHME test 
-sets are never used for training or model selection, and come from a different dataset with different writers, 
+\textbf{Split}: We will train on the MathWriting training split and use its validation split for model selection.
+We will evaluate on the MathWriting test split and on the CROHME 2014, 2016 and 2019 test sets, which are the standard
+benchmarks used in prior work. MathWriting provides substantially more training data than CROHME, which reduces
+overfitting, while evaluating on CROHME allows direct comparison with published results. Because the CROHME test
+sets are never used for training or model selection, and come from a different dataset with different writers,
 they can be used to test generalization of our model nicely.
 }
 
@@ -207,6 +207,10 @@ Specify the model or architecture (e.g., CNN, RNN, GNN, etc.) you intend to use 
     \item Will you adapt or combine existing architectures?
 \end{itemize}
 
+% Wenqi Zhao and Liangcai Gao in an ECCV 2022 paper
+\blue{Given the nature of this problem, recognizing the expressions in images
+and generating a sequence of latex tokens for each handwritten expression, we
+plan to fine-tune the CoMER model mentioned in section 3.}
 
 {\bf Proposed Approach.}
 Outline the main steps of your proposed method (As much as possible at this stage), including:
@@ -217,6 +221,27 @@ Outline the main steps of your proposed method (As much as possible at this stag
     \item Optimization strategy and important hyperparameters.
     \item Inference procedure and expected outputs.
 \end{itemize}
+\blue{
+  Steps:
+  \begin{itemize}
+    \item \textbf{Input representation and Preprocessing}: The handwritten
+      strokes in MathWriting dataset are represented with Ink Markup Language
+      (InkML), so they must be rendered into images before used for the
+      training of the model.
+    \item \textbf{Model architecture}: The architecture of CoMER is shown below.
+      The two key components of the model are the DenseNet encoder, used to
+      extract features from the rendered images, and the transformer to decode
+      and generate the output. The fine-tuning starts from the head (linear \&
+      softmax) layer and possibly improves FFN from CoMER.
+      \begin{center}
+          \includegraphics[width=0.50\textwidth]{CoMER-architecture.png} \\
+      \end{center}
+    \item \textbf{Optimization and hyperparameters}: We will use the same set of
+      hyperparameters as the original CoMER model.
+    \item \textbf{Expected Outputs and Inference Procedure}: The expected
+      outputs are latex code sequences representing the handwritten expressions.
+  \end{itemize}
+}
 
 We want you to provide enough detail to establish that the approach is technically plausible, while recognizing that the implementation and design may evolve.
 
@@ -229,6 +254,13 @@ Describe how you will determine whether your approach is successful. Specify:
     \item Experimental comparisons or ablation studies.
     \item Expected results and how they will be interpreted.
 \end{itemize}
+\blue{
+  To evaluate the performance of our fine-tuned model, we will use CoMER as the
+  reference and the metrics and official evaluation tool by the CROHME
+  organizers, same as how designer of CoMER evaluated their model. We will also
+  compare our fine-tuned model with other previously proposed solutions covered
+  in section 3.
+}
 
 % ==================================================
 \section{Timeline and Deliverables}
